@@ -80,6 +80,7 @@ public class EmployeeService {
         return employee;
     }
 
+
     // 従業員パスワードチェック
     private ErrorKinds employeePasswordCheck(Employee employee) {
 
@@ -116,5 +117,9 @@ public class EmployeeService {
         int passwordLength = employee.getPassword().length();
         return passwordLength < 8 || 16 < passwordLength;
     }
+
+
+
+
 
 }

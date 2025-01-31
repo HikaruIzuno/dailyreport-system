@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
 
@@ -47,6 +48,52 @@ public class EmployeeController {
 
         model.addAttribute("employee", employeeService.findByCode(code));
         return "employees/detail";
+    }
+
+    // 従業員更新画面
+    @GetMapping(value = "/{code}/update")
+    public String showUpdateForm(@PathVariable("code") String code, Model model) {
+        Employee employee = employeeService.findByCode(code);
+        model.addAttribute("employee", employee);
+        return "employees/update"; // Thymeleafテンプレートの名前
+    }
+
+    // 従業員更新処理
+    @PostMapping("/{code}/update")
+    public String updateEmployee( @PathVariable("code") String code, @Validated @ModelAttribute Employee employee, BindingResult res, Model model) {
+
+     // ① エンティティに code をセット
+     employee.setCode(code);
+
+     // ② バリデーションチェック
+     if (res.hasErrors()) {
+         // エラーがあれば更新画面に戻す
+         return "employees/update";
+     }
+
+     // ③ パスワードが空欄の場合の扱い例
+     // (既存のパスワードを保持するか、エラーにするか要件に応じて)
+     Employee oldData = employeeService.findByCode(code);
+     if ("".equals(employee.getPassword())) {
+         employee.setPassword(oldData.getPassword());
+     }
+
+     // ④ 更新処理
+     try {
+         ErrorKinds result = employeeService.save(employee);
+         // 返ってきた ErrorKinds がエラーを含む場合は更新画面に戻す
+         if (ErrorMessage.contains(result)) {
+             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+             return "employees/update";
+         }
+     } catch (DataIntegrityViolationException ex) {
+         model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
+                 ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+         return "employees/update";
+     }
+
+     // ⑤ 正常終了なら従業員一覧へリダイレクト
+     return "redirect:/employees";
     }
 
     // 従業員新規登録画面
