@@ -51,7 +51,7 @@ public class EmployeeController {
     }
 
     // 従業員更新画面
-    @GetMapping(value = "/{code}/update")
+    @PostMapping(value = "/{code}/update")
     public String showUpdateForm(@PathVariable("code") String code, Model model) {
         Employee employee = employeeService.findByCode(code);
         model.addAttribute("employee", employee);
@@ -59,7 +59,7 @@ public class EmployeeController {
     }
 
     // 従業員更新処理
-    @PostMapping("/{code}/update")
+    @GetMapping("/{code}/update")
     public String updateEmployee( @PathVariable("code") String code, @Validated @ModelAttribute Employee employee, BindingResult res, Model model) {
 
      // ① エンティティに code をセット

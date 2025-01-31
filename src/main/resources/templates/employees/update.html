@@ -51,7 +51,10 @@
                                         <p class="mb-1"></p>
                                         <div class="col-md-4">
                                             <select class="form-select" th:field="*{role}" id="role">
-                                                <option th:each="item:${T(com.techacademy.entity.Employee.Role).values()}" th:value="${item}" th:text="${item.getValue()}" th:selected="*{role} == ${item}"></option>
+                                                <option th:each="item:${T(com.techacademy.entity.Employee.Role).values()}"
+                                                th:value="${item}"
+                                                th:text="${item.getValue()}"
+                                                th:selected="${employee.role} == ${item}"></option>
                                             </select>
                                         </div>
                                     </div>
