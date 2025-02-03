@@ -29,26 +29,31 @@ public class EmployeeService {
     // 従業員保存
     @Transactional
     public ErrorKinds save(Employee employee) {
+        if (employee.getCode() == null) {
 
-        // パスワードチェック
-        ErrorKinds result = employeePasswordCheck(employee);
-        if (ErrorKinds.CHECK_OK != result) {
-            return result;
+            // パスワードチェック
+            ErrorKinds result = employeePasswordCheck(employee);
+            if (ErrorKinds.CHECK_OK != result) {
+                return result;
+            }
+
+            // 新規作成の場合の重複チェック
+            Optional<Employee> existingEmployee = Optional.of(findByCode(employee.getCode()));
+            if (existingEmployee.isPresent()) {
+                return ErrorKinds.DUPLICATE_ERROR;
+            }
+            employee.setCreatedAt(LocalDateTime.now());
         }
 
-        // 従業員番号重複チェック
-        if (findByCode(employee.getCode()) != null) {
-            return ErrorKinds.DUPLICATE_ERROR;
-        }
+            employee.setDeleteFlg(false);
 
-        employee.setDeleteFlg(false);
+            LocalDateTime now = LocalDateTime.now();
+            employee.setCreatedAt(now);
+            employee.setUpdatedAt(now);
 
-        LocalDateTime now = LocalDateTime.now();
-        employee.setCreatedAt(now);
-        employee.setUpdatedAt(now);
+            employeeRepository.save(employee);
+            return ErrorKinds.SUCCESS;
 
-        employeeRepository.save(employee);
-        return ErrorKinds.SUCCESS;
     }
 
     // 従業員削除
