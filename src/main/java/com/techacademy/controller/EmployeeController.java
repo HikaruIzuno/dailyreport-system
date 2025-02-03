@@ -51,7 +51,7 @@ public class EmployeeController {
     }
 
     // 従業員更新画面
-    @PostMapping(value = "/{code}/update")
+    @GetMapping(value = "/{code}/update")
     public String showUpdateForm(@PathVariable("code") String code, Model model) {
         Employee employee = employeeService.findByCode(code);
         model.addAttribute("employee", employee);
@@ -59,8 +59,12 @@ public class EmployeeController {
     }
 
     // 従業員更新処理
-    @GetMapping("/{code}/update")
-    public String updateEmployee( @PathVariable("code") String code, @Validated @ModelAttribute Employee employee, BindingResult res, Model model) {
+    @PostMapping(value = "/{code}/update")
+    public String updateEmployee(
+            @PathVariable("code") String code,
+            @Validated @ModelAttribute Employee employee,
+            BindingResult res,
+            Model model) {
 
      // ① エンティティに code をセット
      employee.setCode(code);
@@ -94,7 +98,7 @@ public class EmployeeController {
 
      // ⑤ 正常終了なら従業員一覧へリダイレクト
      return "redirect:/employees";
-    }
+ }
 
     // 従業員新規登録画面
     @GetMapping(value = "/add")

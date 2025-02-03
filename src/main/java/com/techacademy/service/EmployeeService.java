@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.entity.Employee;
+import com.techacademy.entity.Employee.Role;
 import com.techacademy.repository.EmployeeRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,6 +79,24 @@ public class EmployeeService {
         // 取得できなかった場合はnullを返す
         Employee employee = option.orElse(null);
         return employee;
+    }
+
+    // 更新（追加）を行なう
+    @Transactional
+    public Employee updateEmployee(String code, String name,String password,Role role) {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(code);
+
+        if (optionalEmployee.isPresent()) {
+            // 既存の従業員を更新
+            Employee employee = optionalEmployee.get();
+            employee.setName(name);
+            employee.setPassword(password);
+            employee.setRole(role);
+            // 更新保存
+            return employeeRepository.save(employee);
+        }else {
+        return null;
+        }
     }
 
 
