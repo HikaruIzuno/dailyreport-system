@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.entity.Employee;
-import com.techacademy.entity.Employee.Role;
 import com.techacademy.repository.EmployeeRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +55,75 @@ public class EmployeeService {
 
     }
 
+    // 更新処理
+    @Transactional
+    public ErrorKinds update(Employee employee) {
+        if (employee.getCode() != null) {
+
+            // 既存の従業員情報を取得
+            Employee existingEmployee = findByCode(employee.getCode());
+            if (existingEmployee == null) {
+                return ErrorKinds.CHECK_OK; // 存在しない場合のエラー処理
+            }
+
+         // パスワードが空欄の場合、既存のパスワードを保持
+            if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
+                employee.setPassword(existingEmployee.getPassword());
+            } else {
+                // パスワードが入力されている場合のみパスワードチェックを実施
+                ErrorKinds result = employeePasswordCheck(employee);
+                if (ErrorKinds.CHECK_OK != result) {
+                    return result;
+                }
+            }
+
+            // name と role が変更されていたら更新
+            boolean isUpdated = false;
+
+            if (employee.getName() != null && !employee.getName().equals(existingEmployee.getName())) {
+                existingEmployee.setName(employee.getName());
+                isUpdated = true;
+            }
+
+            if (employee.getRole() != null && !employee.getRole().equals(existingEmployee.getRole())) {
+                existingEmployee.setRole(employee.getRole());
+                isUpdated = true;
+            }
+
+            // 更新がある場合のみデータベースに保存
+            if (isUpdated) {
+                existingEmployee.setUpdatedAt(LocalDateTime.now());
+                employeeRepository.save(existingEmployee);
+            }
+
+            return ErrorKinds.SUCCESS;
+        }
+        return ErrorKinds.CHECK_OK;
+
+    }
+
+ /*更新（追加）を行なう
+    @Transactional
+    public Employee updateEmployee(String code, String name,String password,Role role) {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(code);
+
+        if (optionalEmployee.isPresent()) {
+            // 既存の従業員を更新
+            Employee employee = optionalEmployee.get();
+            employee.setName(name);
+         // パスワードが空欄の場合、既存のパスワードを保持
+            if (password == null || password.isEmpty()) {
+                password = employee.getPassword();
+            }
+            employee.setPassword(password);
+            employee.setRole(role);
+            // 更新保存
+            return employeeRepository.update(employee);
+        }else {
+        return null;
+        }
+    }
+*/
     // 従業員削除
     @Transactional
     public ErrorKinds delete(String code, UserDetail userDetail) {
@@ -72,6 +140,9 @@ public class EmployeeService {
         return ErrorKinds.SUCCESS;
     }
 
+
+
+
     // 従業員一覧表示処理
     public List<Employee> findAll() {
         return employeeRepository.findAll();
@@ -86,27 +157,6 @@ public class EmployeeService {
         return employee;
     }
 
-    // 更新（追加）を行なう
-    @Transactional
-    public Employee updateEmployee(String code, String name,String password,Role role) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(code);
-
-        if (optionalEmployee.isPresent()) {
-            // 既存の従業員を更新
-            Employee employee = optionalEmployee.get();
-            employee.setName(name);
-         // パスワードが空欄の場合、既存のパスワードを保持
-            if (password == null || password.isEmpty()) {
-                password = employee.getPassword();
-            }
-            employee.setPassword(password);
-            employee.setRole(role);
-            // 更新保存
-            return employeeRepository.save(employee);
-        }else {
-        return null;
-        }
-    }
 
 
     // 従業員パスワードチェック 一時的にPublicに変更
