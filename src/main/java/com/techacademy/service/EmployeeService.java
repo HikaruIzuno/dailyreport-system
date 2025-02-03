@@ -90,6 +90,10 @@ public class EmployeeService {
             // 既存の従業員を更新
             Employee employee = optionalEmployee.get();
             employee.setName(name);
+         // パスワードが空欄の場合、既存のパスワードを保持
+            if (password == null || password.isEmpty()) {
+                password = employee.getPassword();
+            }
             employee.setPassword(password);
             employee.setRole(role);
             // 更新保存

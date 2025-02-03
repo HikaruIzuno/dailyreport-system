@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
-
 import com.techacademy.entity.Employee;
 import com.techacademy.service.EmployeeService;
 import com.techacademy.service.UserDetail;
@@ -52,7 +50,7 @@ public class EmployeeController {
 
     // 従業員更新画面
     @GetMapping(value = "/{code}/update")
-    public String showUpdateForm(@PathVariable("code") String code, Model model) {
+    public String showUpdateForm(@PathVariable String code, Model model) {
         Employee employee = employeeService.findByCode(code);
         model.addAttribute("employee", employee);
         return "employees/update"; // Thymeleafテンプレートの名前
@@ -61,7 +59,7 @@ public class EmployeeController {
     // 従業員更新処理
     @PostMapping(value = "/{code}/update")
     public String updateEmployee(
-            @PathVariable("code") String code,
+            @PathVariable String code,
             @Validated @ModelAttribute Employee employee,
             BindingResult res,
             Model model) {
@@ -112,10 +110,6 @@ public class EmployeeController {
     public String add(@Validated Employee employee, BindingResult res, Model model) {
 
         // パスワード空白チェック
-        /*
-         * エンティティ側の入力チェックでも実装は行えるが、更新の方でパスワードが空白でもチェックエラーを出さずに
-         * 更新出来る仕様となっているため上記を考慮した場合に別でエラーメッセージを出す方法が簡単だと判断
-         */
         if ("".equals(employee.getPassword())) {
             // パスワードが空白だった場合
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
