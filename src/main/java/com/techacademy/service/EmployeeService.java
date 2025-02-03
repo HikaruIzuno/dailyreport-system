@@ -26,29 +26,34 @@ public class EmployeeService {
         this.passwordEncoder = passwordEncoder;
     }
 
- // 従業員保存
+    // 従業員保存
     @Transactional
     public ErrorKinds save(Employee employee) {
+        if (employee.getCode() == null) {
 
-        // パスワードチェック
-        ErrorKinds result = employeePasswordCheck(employee);
-        if (ErrorKinds.CHECK_OK != result) {
-            return result;
+            // パスワードチェック
+            ErrorKinds result = employeePasswordCheck(employee);
+            if (ErrorKinds.CHECK_OK != result) {
+                return result;
+            }
+
+            // 新規作成の場合の重複チェック
+            Optional<Employee> existingEmployee = Optional.of(findByCode(employee.getCode()));
+            if (existingEmployee.isPresent()) {
+                return ErrorKinds.DUPLICATE_ERROR;
+            }
+            employee.setCreatedAt(LocalDateTime.now());
         }
 
-        // 従業員番号重複チェック
-        if (findByCode(employee.getCode()) != null) {
-            return ErrorKinds.DUPLICATE_ERROR;
-        }
+            employee.setDeleteFlg(false);
 
-        employee.setDeleteFlg(false);
+            LocalDateTime now = LocalDateTime.now();
+            employee.setCreatedAt(now);
+            employee.setUpdatedAt(now);
 
-        LocalDateTime now = LocalDateTime.now();
-        employee.setCreatedAt(now);
-        employee.setUpdatedAt(now);
+            employeeRepository.save(employee);
+            return ErrorKinds.SUCCESS;
 
-        employeeRepository.save(employee);
-        return ErrorKinds.SUCCESS;
     }
 
     // 従業員削除
@@ -96,7 +101,6 @@ public class EmployeeService {
             }
             employee.setPassword(password);
             employee.setRole(role);
-            employee.setUpdatedAt(LocalDateTime.now());
             // 更新保存
             return employeeRepository.save(employee);
         }else {
@@ -105,8 +109,8 @@ public class EmployeeService {
     }
 
 
-    // 従業員パスワードチェック
-    private ErrorKinds employeePasswordCheck(Employee employee) {
+    // 従業員パスワードチェック 一時的にPublicに変更
+    public ErrorKinds employeePasswordCheck(Employee employee) {
 
         // 従業員パスワードの半角英数字チェック処理
         if (isHalfSizeCheckError(employee)) {

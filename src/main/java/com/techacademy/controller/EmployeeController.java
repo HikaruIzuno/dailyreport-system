@@ -12,12 +12,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
 import com.techacademy.entity.Employee;
-import com.techacademy.entity.Employee.Role;
 import com.techacademy.service.EmployeeService;
 import com.techacademy.service.UserDetail;
 
@@ -59,24 +57,46 @@ public class EmployeeController {
 
     // 従業員更新処理
     @PostMapping(value = "/{code}/update")
-    public String updateEmployee(
-            @PathVariable String code,
-            @RequestParam String name,
-            @RequestParam(required = false) String password,
-            @RequestParam Role role,
-            Model model) {
+    public String update(@PathVariable String code, @Validated Employee employee, BindingResult res, Model model) {
+        // 入力チェック
+        if (res.hasErrors()) {
+            // エラーメッセージをモデルに追加
+            model.addAttribute("errors", res.getAllErrors());
 
-    Employee updatedEmployee = employeeService.updateEmployee(code, name, password, role);
-    if (updatedEmployee == null) {
-        model.addAttribute("error", "Employee not found");
-        return "employees/update";
-    }
+            // パスワード空白チェック
 
+            ErrorKinds passwordCheckResult = employeeService.employeePasswordCheck(employee);
+            if (ErrorMessage.contains(passwordCheckResult)) {
+                model.addAttribute(ErrorMessage.getErrorName(passwordCheckResult), ErrorMessage.getErrorValue(passwordCheckResult));
+                return "employees/update";
+            }
+
+
+            // 更新フォームを表示するビュー名を返す
+            return "employees/update";
+        }
+
+
+        try {
+            ErrorKinds result = employeeService.save(employee);
+
+            if (ErrorMessage.contains(result)) {
+                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+                return "employees/update";
+            }
+
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
+                    ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+            return "employees/update";
+        }
 
 
      // ⑤ 正常終了なら従業員一覧へリダイレクト
      return "redirect:/employees";
- }
+    }
+
+
 
     // 従業員新規登録画面
     @GetMapping(value = "/add")
