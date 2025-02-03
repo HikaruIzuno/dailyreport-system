@@ -12,20 +12,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
 import com.techacademy.entity.Employee;
+import com.techacademy.entity.Employee.Role;
 import com.techacademy.service.EmployeeService;
 import com.techacademy.service.UserDetail;
 
 @Controller
 @RequestMapping("employees")
 public class EmployeeController {
-
+    @Autowired
     private final EmployeeService employeeService;
 
-    @Autowired
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
     }
@@ -53,47 +54,25 @@ public class EmployeeController {
     public String showUpdateForm(@PathVariable String code, Model model) {
         Employee employee = employeeService.findByCode(code);
         model.addAttribute("employee", employee);
-        return "employees/update"; // Thymeleafテンプレートの名前
+        return "employees/update";
     }
 
     // 従業員更新処理
     @PostMapping(value = "/{code}/update")
     public String updateEmployee(
             @PathVariable String code,
-            @Validated @ModelAttribute Employee employee,
-            BindingResult res,
+            @RequestParam String name,
+            @RequestParam(required = false) String password,
+            @RequestParam Role role,
             Model model) {
 
-     // ① エンティティに code をセット
-     employee.setCode(code);
-
-     // ② バリデーションチェック
-     if (res.hasErrors()) {
-         // エラーがあれば更新画面に戻す
-         return "employees/update";
-     }
-
-     // ③ パスワードが空欄の場合の扱い例
-     // (既存のパスワードを保持するか、エラーにするか要件に応じて)
-     Employee oldData = employeeService.findByCode(code);
-     if ("".equals(employee.getPassword())) {
-         employee.setPassword(oldData.getPassword());
-     }
+    Employee updatedEmployee = employeeService.updateEmployee(code, name, password, role);
+    if (updatedEmployee == null) {
+        model.addAttribute("error", "Employee not found");
+        return "employees/update";
+    }
 
 
-     // ④ 更新処理
-     try {
-         ErrorKinds result = employeeService.save(employee);
-         // 返ってきた ErrorKinds がエラーを含む場合は更新画面に戻す
-         if (ErrorMessage.contains(result)) {
-             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-             return "employees/update";
-         }
-     } catch (DataIntegrityViolationException ex) {
-         model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
-                 ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-         return "employees/update";
-     }
 
      // ⑤ 正常終了なら従業員一覧へリダイレクト
      return "redirect:/employees";
@@ -124,9 +103,6 @@ public class EmployeeController {
         if (res.hasErrors()) {
             return create(employee);
         }
-
-        // 論理削除を行った従業員番号を指定すると例外となるためtry~catchで対応
-        // (findByIdでは削除フラグがTRUEのデータが取得出来ないため)
         try {
             ErrorKinds result = employeeService.save(employee);
 
