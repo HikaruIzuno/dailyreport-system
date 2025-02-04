@@ -28,31 +28,26 @@ public class EmployeeService {
     // 従業員保存
     @Transactional
     public ErrorKinds save(Employee employee) {
-        if (employee.getCode() == null) {
 
-            // パスワードチェック
-            ErrorKinds result = employeePasswordCheck(employee);
-            if (ErrorKinds.CHECK_OK != result) {
-                return result;
-            }
-
-            // 新規作成の場合の重複チェック
-            Optional<Employee> existingEmployee = Optional.of(findByCode(employee.getCode()));
-            if (existingEmployee.isPresent()) {
-                return ErrorKinds.DUPLICATE_ERROR;
-            }
-            employee.setCreatedAt(LocalDateTime.now());
+        // パスワードチェック
+        ErrorKinds result = employeePasswordCheck(employee);
+        if (ErrorKinds.CHECK_OK != result) {
+            return result;
         }
 
-            employee.setDeleteFlg(false);
+        // 従業員番号重複チェック
+        if (findByCode(employee.getCode()) != null) {
+            return ErrorKinds.DUPLICATE_ERROR;
+        }
 
-            LocalDateTime now = LocalDateTime.now();
-            employee.setCreatedAt(now);
-            employee.setUpdatedAt(now);
+        employee.setDeleteFlg(false);
 
-            employeeRepository.save(employee);
-            return ErrorKinds.SUCCESS;
+        LocalDateTime now = LocalDateTime.now();
+        employee.setCreatedAt(now);
+        employee.setUpdatedAt(now);
 
+        employeeRepository.save(employee);
+        return ErrorKinds.SUCCESS;
     }
 
     // 更新処理
@@ -66,7 +61,7 @@ public class EmployeeService {
                 return ErrorKinds.CHECK_OK; // 存在しない場合のエラー処理
             }
 
-         // パスワードが空欄の場合、既存のパスワードを保持
+            // パスワードが空欄の場合、既存のパスワードを保持
             if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
                 employee.setPassword(existingEmployee.getPassword());
             } else {
@@ -87,6 +82,11 @@ public class EmployeeService {
 
             if (employee.getRole() != null && !employee.getRole().equals(existingEmployee.getRole())) {
                 existingEmployee.setRole(employee.getRole());
+                isUpdated = true;
+            }
+
+            if (employee.getPassword() != null && !employee.getPassword().equals(existingEmployee.getPassword())) {
+                existingEmployee.setPassword(employee.getPassword());
                 isUpdated = true;
             }
 
