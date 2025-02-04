@@ -101,29 +101,6 @@ public class EmployeeService {
         return ErrorKinds.CHECK_OK;
 
     }
-
- /*更新（追加）を行なう
-    @Transactional
-    public Employee updateEmployee(String code, String name,String password,Role role) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(code);
-
-        if (optionalEmployee.isPresent()) {
-            // 既存の従業員を更新
-            Employee employee = optionalEmployee.get();
-            employee.setName(name);
-         // パスワードが空欄の場合、既存のパスワードを保持
-            if (password == null || password.isEmpty()) {
-                password = employee.getPassword();
-            }
-            employee.setPassword(password);
-            employee.setRole(role);
-            // 更新保存
-            return employeeRepository.update(employee);
-        }else {
-        return null;
-        }
-    }
-*/
     // 従業員削除
     @Transactional
     public ErrorKinds delete(String code, UserDetail userDetail) {
@@ -140,9 +117,6 @@ public class EmployeeService {
         return ErrorKinds.SUCCESS;
     }
 
-
-
-
     // 従業員一覧表示処理
     public List<Employee> findAll() {
         return employeeRepository.findAll();
@@ -156,8 +130,6 @@ public class EmployeeService {
         Employee employee = option.orElse(null);
         return employee;
     }
-
-
 
     // 従業員パスワードチェック 一時的にPublicに変更
     public ErrorKinds employeePasswordCheck(Employee employee) {
@@ -195,9 +167,5 @@ public class EmployeeService {
         int passwordLength = employee.getPassword().length();
         return passwordLength < 8 || 16 < passwordLength;
     }
-
-
-
-
 
 }

@@ -49,7 +49,7 @@ public class EmployeeController {
 
     // 従業員更新画面
     @GetMapping(value = "/{code}/update")
-    public String showUpdateForm(@PathVariable String code, Model model) {
+    public String edit(@PathVariable String code, Model model) {
         Employee employee = employeeService.findByCode(code);
         model.addAttribute("employee", employee);
         return "employees/update";
@@ -57,7 +57,7 @@ public class EmployeeController {
 
     // 従業員更新処理
     @PostMapping(value = "/{code}/update")
-    public String updateEmployee(@PathVariable String code, @Validated Employee employee, BindingResult res, Model model) {
+    public String update(@PathVariable String code, @Validated Employee employee, BindingResult res, Model model) {
         // 入力チェック
         if (res.hasErrors()) {
             // エラーメッセージをモデルに追加
@@ -74,14 +74,10 @@ public class EmployeeController {
                 return "employees/update";
             }
         } catch (DataIntegrityViolationException e) {
-            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             return "employees/update";
         }
-
-
-     // ⑤ 正常終了なら従業員一覧へリダイレクト
-     return "redirect:/employees";
+        // ⑤ 正常終了なら従業員一覧へリダイレクト
+        return "redirect:/employees";
     }
 
     // 従業員新規登録画面
