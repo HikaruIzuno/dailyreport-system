@@ -36,7 +36,7 @@ public class ReportController {
         model.addAttribute("listSize", reportService.findAll().size());
         model.addAttribute("reportList", reportService.findAll());
 
-        return "report/list";
+        return "reports/list";
     }
 }
 
