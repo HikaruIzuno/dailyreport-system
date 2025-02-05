@@ -21,40 +21,36 @@
                         <div class="card-body">
                             <form th:action="@{/reports/add}" th:object="${report}" th:method="post">
                                 <div class="wizard wizard-success mb-4">
-                                    <!--
                                     <div class="mb-3">
                                         <label class="form-label" for="date">日付</label>
-                                        <p class="mb-1"></p>
+                                        <!--<p class="mb-1"></p>-->
                                         <div class="col-md-7">
-                                            <input class="form-control" type="date" th:field="*{date}" th:errorclass="err" id="date">
+                                            <input class="form-control" type="date" th:field="*{date}" th:value="${date} ?: ''" th:errorclass="err" id="date">
                                             <span th:errors="*{date}" class="text-danger"></span>
                                             <span th:if="${dateError} != null" th:text="${dateError}" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label" for="name">氏名: <span th:text="${#authentication.principal.name}"></span></label>
-                                        <p class="mb-1"></p>
-                                        <div class="col-md-7">
-                                            <input class="form-control" type="text" th:field="*{name}" th:errorclass="err" id="name">
-                                            <span th:errors="*{name}" class="text-danger"></span>
-                                        </div>
+                                        <label class="form-label">氏名</label>
+                                        <p class="form-control-plaintext" th:if="${employee != null}" th:text="${employee.name}"></p>
                                     </div>
+
                                     <div class="mb-3">
                                         <label class="form-label" for="title">タイトル</label>
                                         <p class="mb-1"></p>
                                         <div class="col-md-7">
                                             <input class="form-control" type="text" th:field="*{title}" th:errorclass="err" id="title">
-                                            <span th:if="$titleError} neq null" th:text="${titleError}" class="text-danger"></span>
+                                            <span th:if="${titleError} neq null" th:text="${titleError}" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="content">内容</label>
                                         <p class="mb-1"></p>
                                         <div class="col-md-7">
-                                            <input class="form-control" type="text" th:field="*{content}" th:errorclass="err" id="content">
-                                            <span th:if="$contentError} neq null" th:text="${contentError}" class="text-danger"></span>
+                                            <textarea class="form-control"  th:field="*{content}" th:errorclass="err" id="content" rows="5"></textarea>
+                                            <span th:if="${contentError} neq null" th:text="${contentError}" class="text-danger"></span>
                                         </div>
-                                    </div>-->
+                                    </div>
                                 </div>
                                 <p class="mt-5">
                                     <input type="submit" value="登録" class="btn btn-primary">

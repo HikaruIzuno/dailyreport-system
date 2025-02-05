@@ -59,6 +59,14 @@ public class Report {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate reportDate;
 
+    public LocalDate getDate() {
+        return reportDate;
+    }
+    public void setDate(LocalDate date) {
+        this.reportDate = date;
+    }
+
+
     // タイトル
     @Column(length = 100, nullable = false)
     @NotEmpty

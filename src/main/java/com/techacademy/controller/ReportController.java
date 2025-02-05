@@ -1,5 +1,6 @@
 package com.techacademy.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,13 +63,28 @@ public class ReportController {
         return "reports/list";
     }
 
-    // 従業員新規登録画面
+    // 日報新規登録画面
+
     @GetMapping(value = "/add")
-    public String create(@ModelAttribute Report report) {
+    public String create(@AuthenticationPrincipal UserDetail userDetail, Model model) {
+        Report report = new Report();
+        // ログイン中のユーザーを取得
+        Employee employee = userDetail.getEmployee();
+        // モデルにセット
+        model.addAttribute("report", report);
+        model.addAttribute("employee", employee);
         return "reports/new";
     }
+    /*
+    @GetMapping(value = "/add")
+    public String create(Model model) {
+        Report report = new Report();
+        report.setDate(LocalDate.now()); // 日付を現在の日付にセット
+        model.addAttribute("report", report);
+        return "reports/new";
+    }*/
 
-    // 従業員新規登録処理
+    // 日報新規登録処理
     @PostMapping(value = "/add")
     public String add(@Validated Report report, BindingResult res, Model model) {
 
@@ -79,7 +95,7 @@ public class ReportController {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
             return create(employee);
-        }*/
+        }
 
         // 入力チェック
         if (res.hasErrors()) {
@@ -96,7 +112,7 @@ public class ReportController {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             return create(report);
-        }
+        }*/
 
         return "redirect:/reports";
     }
