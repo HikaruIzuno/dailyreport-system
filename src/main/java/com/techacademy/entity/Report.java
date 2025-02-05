@@ -70,13 +70,6 @@ public class Report {
     @NotEmpty
     private String content;
 
-    /* 社員番号
-    @Column(length = 10, nullable = false)
-    @NotEmpty
-    @Length(max = 10)
-    private String employee_code;
-    */
-
     // 削除フラグ(論理削除を行うため)
     @Column(columnDefinition="TINYINT", nullable = false)
     private boolean deleteFlg;

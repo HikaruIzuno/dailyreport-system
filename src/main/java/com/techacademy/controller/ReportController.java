@@ -1,7 +1,12 @@
 package com.techacademy.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
+import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
 import com.techacademy.service.ReportService;
 import com.techacademy.service.UserDetail;
@@ -31,12 +37,68 @@ public class ReportController {
 
     // 日報一覧画面
     @GetMapping
-    public String list(Model model) {
+    public String list(Model model, @AuthenticationPrincipal UserDetail userDetail) {
+        // すべてのレポートを取得
+        List<Report> allReports = reportService.findAll();
+        List<Report> filteredReports;
+        // ユーザーのロールを取得
+        String role = userDetail.getAuthorities().stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .findFirst()
+                                .orElse("");
 
-        model.addAttribute("listSize", reportService.findAll().size());
-        model.addAttribute("reportList", reportService.findAll());
-
+        if ("ADMIN".equals(role)) {
+            // 管理者の場合はすべてのレポートを表示
+            filteredReports = allReports;
+        } else {
+            // 一般ユーザーの場合は、自分のレポートのみを表示
+            String username = userDetail.getEmployee().getName();
+            filteredReports = allReports.stream()
+                                        .filter(report -> report.getEmployee().getName().equals(username))
+                                        .collect(Collectors.toList());
+        }
+        model.addAttribute("listSize", filteredReports.size());
+        model.addAttribute("reportList", filteredReports);
         return "reports/list";
+    }
+
+    // 従業員新規登録画面
+    @GetMapping(value = "/add")
+    public String create(@ModelAttribute Report report) {
+        return "reports/new";
+    }
+
+    // 従業員新規登録処理
+    @PostMapping(value = "/add")
+    public String add(@Validated Report report, BindingResult res, Model model) {
+
+        /*
+        // パスワード空白チェック
+        if ("".equals(report.getDate())) {
+            // パスワードが空白だった場合
+            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
+                    ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
+            return create(employee);
+        }*/
+
+        // 入力チェック
+        if (res.hasErrors()) {
+            return create(report);
+        }
+        try {
+            ErrorKinds result = reportService.save(report);
+
+            if (ErrorMessage.contains(result)) {
+                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+                return create(report);
+            }
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
+                    ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+            return create(report);
+        }
+
+        return "redirect:/reports";
     }
 }
 

@@ -1,5 +1,6 @@
 package com.techacademy.service;
 
+import java.time.LocalDateTime;
 //import java.time.LocalDateTime;
 import java.util.List;
 //import java.util.Optional;
@@ -9,11 +10,14 @@ import java.util.List;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.techacademy.constants.ErrorKinds;
 //import com.techacademy.constants.ErrorKinds;
 //import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
 //import com.techacademy.repository.EmployeeRepository;
 import com.techacademy.repository.ReportRepository;
+
+import jakarta.transaction.Transactional;
 
 //import org.springframework.transaction.annotation.Transactional;
 
@@ -39,11 +43,12 @@ public class ReportService {
         return reportRepository.findAll();
     }
 
-    /*
+
     // 従業員保存
     @Transactional
-    public ErrorKinds save(Employee employee) {
+    public ErrorKinds save(Report report) {
 
+        /*
         // パスワードチェック
         ErrorKinds result = employeePasswordCheck(employee);
         if (ErrorKinds.CHECK_OK != result) {
@@ -53,18 +58,19 @@ public class ReportService {
         // 従業員番号重複チェック
         if (findByCode(employee.getCode()) != null) {
             return ErrorKinds.DUPLICATE_ERROR;
-        }
+        }*/
 
-        employee.setDeleteFlg(false);
+        report.setDeleteFlg(false);
 
         LocalDateTime now = LocalDateTime.now();
-        employee.setCreatedAt(now);
-        employee.setUpdatedAt(now);
+        report.setCreatedAt(now);
+        report.setUpdatedAt(now);
 
-        employeeRepository.save(employee);
+        reportRepository.save(report);
         return ErrorKinds.SUCCESS;
     }
 
+    /*
     // 更新処理
     @Transactional
     public ErrorKinds update(Employee employee) {
