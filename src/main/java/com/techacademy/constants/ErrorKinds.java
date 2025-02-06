@@ -6,6 +6,8 @@ public enum ErrorKinds {
     // エラー内容
     // 空白チェックエラー
     BLANK_ERROR,
+    // 空白チェックエラー
+    BLANK_ERROR2,
     // 半角英数字チェックエラー
     HALFSIZE_ERROR,
     // 桁数(8桁~16桁以外)チェックエラー

@@ -7,6 +7,7 @@ import java.util.List;
 //import java.util.regex.Matcher;
 //import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,17 +26,9 @@ import jakarta.transaction.Transactional;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    // private final PasswordEncoder passwordEncoder;
 
     public ReportService(ReportRepository reportRepository) {
         this.reportRepository = reportRepository;
-
-    /*
-    public ReportService(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
-
-    this.employeeRepository = employeeRepository;
-    this.passwordEncoder = passwordEncoder;
-    */
     }
 
     // 日報一覧表示処理
@@ -43,25 +36,15 @@ public class ReportService {
         return reportRepository.findAll();
     }
 
-
-    // 従業員保存
+    // 日報保存
     @Transactional
     public ErrorKinds save(Report report) {
 
-        /*
-        // パスワードチェック
-        ErrorKinds result = employeePasswordCheck(employee);
-        if (ErrorKinds.CHECK_OK != result) {
-            return result;
+        if (validateReport(report) == ErrorKinds.DATECHECK_ERROR) {
+            return ErrorKinds.DATECHECK_ERROR;
         }
 
-        // 従業員番号重複チェック
-        if (findByCode(employee.getCode()) != null) {
-            return ErrorKinds.DUPLICATE_ERROR;
-        }*/
-
         report.setDeleteFlg(false);
-
         LocalDateTime now = LocalDateTime.now();
         report.setCreatedAt(now);
         report.setUpdatedAt(now);
@@ -69,6 +52,22 @@ public class ReportService {
         reportRepository.save(report);
         return ErrorKinds.SUCCESS;
     }
+
+ // 同一日付・同一ユーザーのレポートが存在するかチェック
+    public ErrorKinds validateReport(Report report) {
+        return reportRepository.existsByReportDateAndEmployee(report.getReportDate(), report.getEmployee())
+               ? ErrorKinds.DATECHECK_ERROR
+               : ErrorKinds.SUCCESS;
+    }
+}
+       /*
+        public ErrorKinds validateReport(Report report) {
+        // 同一日付・同一ユーザーのレポートが存在するかチェック
+        if (reportRepository.existsByReportDateAndEmployee(report.getReportDate(), report.getEmployee())) {
+            return ErrorKinds.DATECHECK_ERROR; // エラーメッセージを登録済みのものにする
+        }
+        return null; // エラーなし*/
+
 
     /*
     // 更新処理
@@ -190,4 +189,3 @@ public class ReportService {
     }
     */
 
-}

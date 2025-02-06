@@ -75,19 +75,21 @@ public class ReportController {
         model.addAttribute("employee", employee);
         return "reports/new";
     }
-    /*
-    @GetMapping(value = "/add")
-    public String create(Model model) {
-        Report report = new Report();
-        report.setDate(LocalDate.now()); // 日付を現在の日付にセット
-        model.addAttribute("report", report);
-        return "reports/new";
-    }*/
 
     // 日報新規登録処理
     @PostMapping(value = "/add")
-    public String add(@Validated Report report, BindingResult res, Model model) {
+    public String add(@Validated Report report, BindingResult res,
+            @AuthenticationPrincipal UserDetail userDetail,Model model) {
 
+        Employee employee = userDetail.getEmployee(); // ログイン中のユーザーを取得
+        report.setEmployee(employee); // Report に Employee をセット
+
+
+        // 入力エラーがある場合はフォームに戻る
+        if (res.hasErrors()) {
+            model.addAttribute("employee", employee);
+            return "reports/new";
+        }
         /*
         // パスワード空白チェック
         if ("".equals(report.getDate())) {
@@ -113,6 +115,9 @@ public class ReportController {
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             return create(report);
         }*/
+
+
+        reportService.save(report);
 
         return "redirect:/reports";
     }
