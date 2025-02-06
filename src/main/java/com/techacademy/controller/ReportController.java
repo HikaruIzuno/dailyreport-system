@@ -84,6 +84,9 @@ public class ReportController {
         Employee employee = userDetail.getEmployee(); // ログイン中のユーザーを取得
         report.setEmployee(employee); // Report に Employee をセット
 
+        LocalDate reportDate = report.getReportDate(); // reportDate を取得
+        model.addAttribute("reportDate", reportDate); // model にセット
+
 
         // 入力エラーがある場合はフォームに戻る
         if (res.hasErrors()) {
@@ -115,6 +118,14 @@ public class ReportController {
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             return create(report);
         }*/
+
+        ErrorKinds error = reportService.validateReport(report);
+        if (error == ErrorKinds.DATECHECK_ERROR) {
+            model.addAttribute("employee", employee);
+            model.addAttribute("reportDate", reportDate); // エラー時もセット
+            model.addAttribute("dateError", "既に登録されている日付です");
+            return "reports/new";
+        }
 
 
         reportService.save(report);

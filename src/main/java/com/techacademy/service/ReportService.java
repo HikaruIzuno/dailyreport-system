@@ -53,7 +53,7 @@ public class ReportService {
         return ErrorKinds.SUCCESS;
     }
 
- // 同一日付・同一ユーザーのレポートが存在するかチェック
+    // 同一日付・同一ユーザーのレポートが存在するかチェック
     public ErrorKinds validateReport(Report report) {
         return reportRepository.existsByReportDateAndEmployee(report.getReportDate(), report.getEmployee())
                ? ErrorKinds.DATECHECK_ERROR
