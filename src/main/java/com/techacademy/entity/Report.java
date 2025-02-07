@@ -75,8 +75,9 @@ public class Report {
     private String title;
 
     // 内容
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition="LONGTEXT")
     @NotEmpty
+    @Length(max = 600)
     private String content;
 
     // 削除フラグ(論理削除を行うため)

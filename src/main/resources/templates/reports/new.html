@@ -23,11 +23,12 @@
                                 <div class="wizard wizard-success mb-4">
                                     <div class="mb-3">
                                         <label class="form-label" for="date">日付</label>
-                                        <!--<p class="mb-1"></p>-->
+                                        <p class="mb-1"></p>
                                         <div class="col-md-7">
                                             <input class="form-control" type="date" th:field="*{reportDate}" th:errorclass="err" id="reportDate">
-                                            <span th:errors="*{reportDate}" class="text-danger"></span> <!-- ここを reportDate に修正 -->
-                                            <span th:if="${dateError} != null" th:text="${dateError}" class="text-danger"></span>
+                                            <span th:errors="*{reportDate}" class="text-danger"></span>
+                                            <span th:if="${reportDateError}" th:text="${reportDateError}" class="text-danger"></span>
+                                            <!--<span th:if="${reportdateError} != null" th:text="${reportdateError}" class="text-danger"></span>-->
                                         </div>
                                     </div>
                                     <div class="mb-3">

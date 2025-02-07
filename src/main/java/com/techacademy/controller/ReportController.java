@@ -87,148 +87,24 @@ public class ReportController {
         LocalDate reportDate = report.getReportDate(); // reportDate を取得
         model.addAttribute("reportDate", reportDate); // model にセット
 
-
         // 入力エラーがある場合はフォームに戻る
         if (res.hasErrors()) {
             model.addAttribute("employee", employee);
             return "reports/new";
         }
-        /*
-        // パスワード空白チェック
-        if ("".equals(report.getDate())) {
-            // パスワードが空白だった場合
-            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
-            return create(employee);
-        }
-
-        // 入力チェック
-        if (res.hasErrors()) {
-            return create(report);
-        }
-        try {
-            ErrorKinds result = reportService.save(report);
-
-            if (ErrorMessage.contains(result)) {
-                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return create(report);
-            }
-        } catch (DataIntegrityViolationException e) {
-            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-            return create(report);
-        }*/
 
         ErrorKinds error = reportService.validateReport(report);
         if (error == ErrorKinds.DATECHECK_ERROR) {
             model.addAttribute("employee", employee);
             model.addAttribute("reportDate", reportDate); // エラー時もセット
-            model.addAttribute("dateError", "既に登録されている日付です");
+            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DATECHECK_ERROR),
+                    ErrorMessage.getErrorValue(ErrorKinds.DATECHECK_ERROR));
+
             return "reports/new";
         }
-
 
         reportService.save(report);
 
         return "redirect:/reports";
     }
 }
-
-    /*
-
-    // 従業員詳細画面
-    @GetMapping(value = "/{code}/")
-    public String detail(@PathVariable String code, Model model) {
-
-        model.addAttribute("employee", employeeService.findByCode(code));
-        return "employees/detail";
-    }
-
-    // 従業員更新画面
-    @GetMapping(value = "/{code}/update")
-    public String edit(@PathVariable String code, Model model) {
-        Employee employee = employeeService.findByCode(code);
-        model.addAttribute("employee", employee);
-        return "employees/update";
-    }
-
-    // 従業員更新処理
-    @PostMapping(value = "/{code}/update")
-    public String update(@PathVariable String code, @Validated Employee employee, BindingResult res, Model model) {
-        // 入力チェック
-        if (res.hasErrors()) {
-            // エラーメッセージをモデルに追加
-            model.addAttribute("errors", res.getAllErrors());
-
-            // 更新フォームを表示するビュー名を返す
-            return "employees/update";
-        }
-        try {
-            ErrorKinds result = employeeService.update(employee);
-
-            if (ErrorMessage.contains(result)) {
-                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return "employees/update";
-            }
-        } catch (DataIntegrityViolationException e) {
-            return "employees/update";
-        }
-        // ⑤ 正常終了なら従業員一覧へリダイレクト
-        return "redirect:/employees";
-    }
-
-    // 従業員新規登録画面
-    @GetMapping(value = "/add")
-    public String create(@ModelAttribute Employee employee) {
-
-        return "employees/new";
-    }
-
-    // 従業員新規登録処理
-    @PostMapping(value = "/add")
-    public String add(@Validated Employee employee, BindingResult res, Model model) {
-
-        // パスワード空白チェック
-        if ("".equals(employee.getPassword())) {
-            // パスワードが空白だった場合
-            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
-            return create(employee);
-        }
-
-        // 入力チェック
-        if (res.hasErrors()) {
-            return create(employee);
-        }
-        try {
-            ErrorKinds result = employeeService.save(employee);
-
-            if (ErrorMessage.contains(result)) {
-                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return create(employee);
-            }
-        } catch (DataIntegrityViolationException e) {
-            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-            return create(employee);
-        }
-
-        return "redirect:/employees";
-    }
-
-    // 従業員削除処理
-    @PostMapping(value = "/{code}/delete")
-    public String delete(@PathVariable String code, @AuthenticationPrincipal UserDetail userDetail, Model model) {
-
-        ErrorKinds result = employeeService.delete(code, userDetail);
-
-        if (ErrorMessage.contains(result)) {
-            model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-            model.addAttribute("employee", employeeService.findByCode(code));
-            return detail(code, model);
-        }
-
-        return "redirect:/employees";
-    }
-
-    */

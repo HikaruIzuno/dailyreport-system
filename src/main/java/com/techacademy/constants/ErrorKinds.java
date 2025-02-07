@@ -20,6 +20,10 @@ public enum ErrorKinds {
     LOGINCHECK_ERROR,
     // 日付チェックエラー
     DATECHECK_ERROR,
+    // 100文字以下チェック
+    ONE_CHECK_ERROR,
+    // 600文字以下チェック
+    SIX_CHECK_ERROR,
     // チェックOK
     CHECK_OK,
     // 正常終了
