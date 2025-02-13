@@ -32,21 +32,6 @@ public class Report {
     @JoinColumn(name = "employee_code", referencedColumnName = "code", nullable = false)
     private Employee employee;
 
-    /*
-    public static enum Role {
-        GENERAL("一般"), ADMIN("管理者");
-
-        private String name;
-
-        private Role(String name) {
-            this.name = name;
-        }
-
-        public String getValue() {
-            return this.name;
-        }
-    }
-    */
 
     // ID
     @Id
@@ -58,14 +43,6 @@ public class Report {
     @Column(nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate reportDate;
-
-    /*
-    public LocalDate getDate() {
-        return reportDate;
-    }
-    public void setDate(LocalDate date) {
-        this.reportDate = date;
-    }*/
 
 
     // タイトル
