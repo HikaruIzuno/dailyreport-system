@@ -130,4 +130,13 @@ public class ReportController {
         }
         return "redirect:/reports";
     }
+
+    // 従業員更新画面
+    @GetMapping(value = "/{id}/update")
+    public String edit(@PathVariable String id, Model model) {
+        Report report = reportService.findById(id);
+        model.addAttribute("report", report);
+        model.addAttribute("employee", report.getEmployee());
+        return "reports/update";
+    }
 }
