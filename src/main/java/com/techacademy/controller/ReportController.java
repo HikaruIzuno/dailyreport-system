@@ -116,4 +116,18 @@ public class ReportController {
         //model.addAttribute("employee", Report.getEmployee());
         return "reports/detail";
     }
+
+    //日報削除処理
+    @PostMapping(value = "/{id}/delete")
+    public String delete(@PathVariable String id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
+
+        ErrorKinds result = reportService.delete(id, userDetail);
+
+        if (ErrorMessage.contains(result)) {
+            model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+            //model.addAttribute("employee", reportService.findById(id));
+            return detail(id, model);
+        }
+        return "redirect:/reports";
+    }
 }
