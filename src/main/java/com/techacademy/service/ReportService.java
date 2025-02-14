@@ -63,10 +63,10 @@ public class ReportService {
     }
 
     // 1件を検索
-    public Report findById(String id) {
+    public Report findById(Long Id) {
         try {
-            Long reportId = Long.parseLong(id);
-            return reportRepository.findById(reportId).orElse(null);
+            //Long reportId = Long.parseLong(Id);
+            return reportRepository.findById(Id).orElse(null);
         } catch (NumberFormatException e) {
             return null; // IDが数値でない場合は null を返す
         }
@@ -74,7 +74,7 @@ public class ReportService {
 
     // 従業員削除
     @Transactional
-    public ErrorKinds delete(String id, UserDetail userDetail) {
+    public ErrorKinds delete(Long id, UserDetail userDetail) {
 
 
         Report report = findById(id);
@@ -83,6 +83,49 @@ public class ReportService {
         report.setDeleteFlg(true);
 
         return ErrorKinds.SUCCESS;
+    }
+
+    // 更新処理
+    @Transactional
+    public ErrorKinds update(Report report) {
+        if (report.getId() != null) {
+
+            // 既存の従業員情報を取得
+            Report existingReport = findById(report.getId());
+            if (existingReport == null) {
+                return ErrorKinds.CHECK_OK; // 存在しない場合のエラー処理
+            }
+
+
+            // date,title,contentが変更されていたら更新
+            boolean isUpdated = false;
+
+            if (report.getReportDate() != null && !report.getReportDate().equals(existingReport.getReportDate())) {
+                existingReport.setReportDate(report.getReportDate());
+                isUpdated = true;
+            }
+
+            if (report.getTitle() != null && !report.getTitle().equals(existingReport.getTitle())) {
+                existingReport.setTitle(report.getTitle());
+                isUpdated = true;
+            }
+
+            if (report.getContent() != null && !report.getContent().equals(existingReport.getContent())) {
+                existingReport.setContent(report.getContent());
+                isUpdated = true;
+            }
+
+
+            // 更新がある場合のみデータベースに保存
+            if (isUpdated) {
+                existingReport.setUpdatedAt(LocalDateTime.now());
+                reportRepository.save(existingReport);
+            }
+
+            return ErrorKinds.SUCCESS;
+        }
+        return ErrorKinds.CHECK_OK;
+
     }
 
 

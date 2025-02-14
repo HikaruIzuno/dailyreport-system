@@ -110,7 +110,7 @@ public class ReportController {
 
     // 日報詳細画面
     @GetMapping(value = "/{id}/")
-    public String detail(@PathVariable String id, Model model) {
+    public String detail(@PathVariable Long id, Model model) {
 
         model.addAttribute("report", reportService.findById(id));
         //model.addAttribute("employee", Report.getEmployee());
@@ -119,7 +119,7 @@ public class ReportController {
 
     //日報削除処理
     @PostMapping(value = "/{id}/delete")
-    public String delete(@PathVariable String id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
 
         ErrorKinds result = reportService.delete(id, userDetail);
 
@@ -133,10 +133,34 @@ public class ReportController {
 
     // 従業員更新画面
     @GetMapping(value = "/{id}/update")
-    public String edit(@PathVariable String id, Model model) {
+    public String edit(@PathVariable Long id, Model model) {
         Report report = reportService.findById(id);
         model.addAttribute("report", report);
         model.addAttribute("employee", report.getEmployee());
         return "reports/update";
+    }
+    // 日報更新処理
+    @PostMapping(value = "/{id}/update")
+    public String update(@PathVariable String id, @Validated Report report, BindingResult res, Model model) {
+        // 入力チェック
+        if (res.hasErrors()) {
+            // エラーメッセージをモデルに追加
+            model.addAttribute("errors", res.getAllErrors());
+
+            // 更新フォームを表示するビュー名を返す
+            return "reports/update";
+        }
+        try {
+            ErrorKinds result = reportService.update(report);
+
+            if (ErrorMessage.contains(result)) {
+                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+                return "reports/update";
+            }
+        } catch (DataIntegrityViolationException e) {
+            return "reports/update";
+        }
+        // ⑤ 正常終了なら従業員一覧へリダイレクト
+        return "redirect:/reports";
     }
 }
