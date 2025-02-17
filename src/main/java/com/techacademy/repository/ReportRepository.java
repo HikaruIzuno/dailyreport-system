@@ -12,8 +12,8 @@ import com.techacademy.entity.Report;
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
  // 指定した日付と従業員でレポートが存在するかチェック
-    @Query("SELECT COUNT(r) > 0 FROM Report r WHERE r.reportDate = :reportDate AND r.employee = :employee")
+    @Query("SELECT COUNT(r) > 0 FROM Report r WHERE r.reportDate = :reportDate AND r.employee = :employee ")
     boolean existsByReportDateAndEmployee(@Param("reportDate") LocalDate reportDate,
-                                          @Param("employee") Employee employee);
-    //boolean existsByReportDateAndEmployee(LocalDate reportDate, Employee employee);
+                                          @Param("employee") Employee employee,
+                                          @Param("id") Long id);
 }

@@ -113,7 +113,6 @@ public class ReportController {
     public String detail(@PathVariable Long id, Model model) {
 
         model.addAttribute("report", reportService.findById(id));
-        //model.addAttribute("employee", Report.getEmployee());
         return "reports/detail";
     }
 
@@ -125,42 +124,45 @@ public class ReportController {
 
         if (ErrorMessage.contains(result)) {
             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-            //model.addAttribute("employee", reportService.findById(id));
             return detail(id, model);
         }
         return "redirect:/reports";
     }
 
-    // 従業員更新画面
+    // 日報更新画面
     @GetMapping(value = "/{id}/update")
     public String edit(@PathVariable Long id, Model model) {
         Report report = reportService.findById(id);
+
         model.addAttribute("report", report);
-        model.addAttribute("employee", report.getEmployee());
+        model.addAttribute("employee", report.getEmployee() != null ? report.getEmployee() : new Employee());
+
         return "reports/update";
     }
+
     // 日報更新処理
     @PostMapping(value = "/{id}/update")
-    public String update(@PathVariable String id, @Validated Report report, BindingResult res, Model model) {
+    public String update(@PathVariable Long id, @Validated Report report, BindingResult res, Model model) {
+        Report existingReport = reportService.findById(id);
+
+        // report の employee のセット
+        report.setEmployee(existingReport.getEmployee());
+
         // 入力チェック
         if (res.hasErrors()) {
-            // エラーメッセージをモデルに追加
-            model.addAttribute("errors", res.getAllErrors());
-
-            // 更新フォームを表示するビュー名を返す
+            model.addAttribute("employee", existingReport.getEmployee());
             return "reports/update";
         }
-        try {
-            ErrorKinds result = reportService.update(report);
 
-            if (ErrorMessage.contains(result)) {
-                model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return "reports/update";
-            }
-        } catch (DataIntegrityViolationException e) {
+        ErrorKinds error = reportService.update(report);
+        if (error == ErrorKinds.DATECHECK_ERROR) {
+            model.addAttribute("employee", existingReport.getEmployee());
+            model.addAttribute("reportDate", report.getReportDate());
+            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DATECHECK_ERROR),
+                    ErrorMessage.getErrorValue(ErrorKinds.DATECHECK_ERROR));
             return "reports/update";
         }
-        // ⑤ 正常終了なら従業員一覧へリダイレクト
+
         return "redirect:/reports";
     }
 }
